@@ -11,6 +11,7 @@ from google.cloud import storage
 #Módulos para las interfaces gráficas
 from tkinter import *
 import tkinter as tk
+from tkinter import messagebox
 
 #Ventanas
 def mainmenu(): #Carga y muestra la ventana principal junto a sus procesos
@@ -82,7 +83,7 @@ def search(): #Muestra la ventana de búsqueda y se encarga de realizar este pro
 
 def register(): #Muestra la ventana de registro y se encarga de realizar este proceso
 
-    global menu, lib, regw, serw, rn
+    global menu, lib, regw, serw, rn, Ex
 
     menu.destroy()
 
@@ -98,289 +99,299 @@ def register(): #Muestra la ventana de registro y se encarga de realizar este pr
 
     def ret():
         regw.destroy()
-        # serw.destroy()
         mainmenu()
         return
 
-    nmv = StringVar()
-    tnv = StringVar()
+    # window 1
 
-    fdayv = IntVar()
-    fmonthv = IntVar()
-    fyearv = IntVar()
+    def getdata():
+        global rn,Ex
 
-    ldayv = IntVar()
-    lmonthv = IntVar()
-    lyearv = IntVar()
+        nmv = StringVar()
+        tnv = StringVar()
 
-    model = IntVar()
+        fdayv = IntVar()
+        fmonthv = IntVar()
+        fyearv = IntVar()
 
-    date = dt.datetime.now()
+        ldayv = IntVar()
+        lmonthv = IntVar()
+        lyearv = IntVar()
 
-    rn = str(date.year) + str(date.month) + str(date.day) + str(date.hour) + str(date.minute) + str(date.second)
-    rnt = "N# de registro: " + rn
+        model = IntVar()
 
-    tl = Label(regw, text="Registro de mantenimiento de unidad: Datos", font=("Arial 20 bold"))
-    tl.place(x=10, y=20)
-
-    bck = Button(regw, text="Atrás", font=("Arial", 15), bg="brown1", command=ret)
-    bck.place(x=880, y=530, width=80, height=40)
-
-    rnlb = (Label(regw, text=rnt, font=("Arial 10 bold"))).place(x=440, y=70)
-    nmlb = Label(regw, text="Nombre del cliente", font=("Arial 10 bold"))
-    nmin = Entry(regw, textvariable=nmv, font=("Arial", 10))
-
-    tnlb = Label(regw, text="Nombre del técnico", font=("Arial 10 bold"))
-    tnin = Entry(regw, textvariable=tnv, font=("Arial", 10))
-
-    lx0 = 40
-
-    nmlb.place(x=lx0, y=60)
-    nmin.place(x=lx0, y=80, width=300)
-
-    tnlb.place(x=lx0, y=100)
-    tnin.place(x=lx0, y=120,width=300)
-
-    fdtlb = Label(regw, text="Fecha de entrada (día/mes/año)", font=("Arial 10 bold"))
-    Label(regw, text="/", font=("Arial", 10)).place(x=lx0+40, y=170)
-    Label(regw, text="/", font=("Arial", 10)).place(x=lx0+90, y=170)
-
-    fdayin = Combobox(regw, width=3, textvariable=fdayv)
-    fmonthin = Combobox(regw, width=3, textvariable=fmonthv)
-    fyearin = Combobox(regw, width=3, textvariable=fyearv)
-
-    fdayin['values'] = (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31)
-    fmonthin['values'] = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
-    fyearin['values'] = (24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40)
-
-    fdtlb.place(x=lx0, y=150)
-    fdayin.place(x=lx0, y=170)
-    fmonthin.place(x=lx0+50, y=170)
-    fyearin.place(x=lx0+100, y=170)
-
-    ldtlb = Label(regw, text="Fecha de salida (día/mes/año)", font=("Arial 10 bold"))
-    Label(regw, text="/", font=("Arial", 10)).place(x=lx0+40, y=220)
-    Label(regw, text="/", font=("Arial", 10)).place(x=lx0+90, y=220)
-
-    ldayin = Combobox(regw, width=3, textvariable=ldayv)
-    lmonthin = Combobox(regw, width=3, textvariable=lmonthv)
-    lyearin = Combobox(regw, width=3, textvariable=lyearv)
-
-    ldayin['values'] = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31)
-    lmonthin['values'] = (1,2,3,4,5,6,7,8,9,10,11,12)
-    lyearin['values'] = (24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40)
-
-    ldtlb.place(x=lx0, y=200)
-    ldayin.place(x=lx0, y=220)
-    lmonthin.place(x=lx0+50, y=220)
-    lyearin.place(x=lx0+100, y=220)
-
-    Label(regw, text="Detalles", font=("Arial 10 bold")).place(x=lx0, y=250)
-    detin = Text(regw, height=6, width=40, padx=2, pady=2, wrap=WORD)
-    scroll1 = Scrollbar(regw, orient=VERTICAL,command=detin.yview)
-
-    detin.place(x=lx0, y=270)
-    scroll1.place(x=lx0+325, y=260, height=120)
-
-    Label(regw, text="Observaciones", font=("Arial 10 bold")).place(x=lx0, y=380)
-    obsin = Text(regw, height=6, width=40, padx=2, pady=2, wrap=WORD)
-    scroll2 = Scrollbar(regw, orient=VERTICAL, command=obsin.yview)
-
-    obsin.place(x=lx0, y=400)
-    scroll2.place(x=lx0 + 325, y=390, height=120)
-
-    lx1 = 450
-    lx2 = 650
-    lx3 = 850
-
-    Label(regw, text="Phantom", font=("Arial 10 bold")).place(x=lx1, y=100)
-    Radiobutton(regw, text='Phantom 4', variable=model, value=1).place(x=lx1, y=120)
-    Radiobutton(regw, text='Phantom 4 Pro', variable=model, value=2).place(x=lx1, y=140)
-    Radiobutton(regw, text='Phantom 4 Advanced', variable=model, value=3).place(x=lx1, y=160)
-    Radiobutton(regw, text='Phantom 4 Pro V2', variable=model, value=4).place(x=lx1, y=180)
-    Radiobutton(regw, text='Phantom 4 RTK', variable=model, value=5).place(x=lx1, y=200)
-
-    Label(regw, text="Spark", font=("Arial 10 bold")).place(x=lx1, y=230)
-    Radiobutton(regw, text='Spark', variable=model, value=6).place(x=lx1, y=250)
-
-    Label(regw, text="Mavic", font=("Arial 10 bold")).place(x=lx1, y=280)
-    Radiobutton(regw, text='Mavic Pro', variable=model, value=7).place(x=lx1, y=300)
-    Radiobutton(regw, text='Mavic Air', variable=model, value=8).place(x=lx1, y=320)
-    Radiobutton(regw, text='Mavic Air 2', variable=model, value=9).place(x=lx1, y=340)
-    Radiobutton(regw, text='Mavic Air 2s', variable=model, value=10).place(x=lx1, y=360)
-    Radiobutton(regw, text='Mavic 2 Pro', variable=model, value=11).place(x=lx1, y=380)
-    Radiobutton(regw, text='Mavic 2 Enterprise', variable=model, value=12).place(x=lx1, y=400)
-    Radiobutton(regw, text='Mavic 3', variable=model, value=13).place(x=lx1, y=420)
-    Radiobutton(regw, text='Mavic 3 Cine', variable=model, value=14).place(x=lx1, y=440)
-    Radiobutton(regw, text='Mavic 3 Pro', variable=model, value=15).place(x=lx1, y=460)
-    Radiobutton(regw, text='Mavic 3 Classic', variable=model, value=16).place(x=lx1, y=480)
-
-    Label(regw, text="Mavic Mini", font=("Arial 10 bold")).place(x=lx2, y=100)
-    Radiobutton(regw, text='Mini', variable=model, value=17).place(x=lx2, y=120)
-    Radiobutton(regw, text='Mini SE', variable=model, value=18).place(x=lx2, y=140)
-    Radiobutton(regw, text='Mini 2', variable=model, value=19).place(x=lx2, y=160)
-    Radiobutton(regw, text='Mini 3', variable=model, value=20).place(x=lx2, y=180)
-    Radiobutton(regw, text='Mini 3 Pro', variable=model, value=21).place(x=lx2, y=200)
-    Radiobutton(regw, text='Mini 4 Pro', variable=model, value=22).place(x=lx2, y=220)
-
-    Label(regw, text="Inspire", font=("Arial 10 bold")).place(x=lx2, y=250)
-    Radiobutton(regw, text='Inspire', variable=model, value=23).place(x=lx2, y=270)
-
-    Label(regw, text="FPV", font=("Arial 10 bold")).place(x=lx2, y=300)
-    Radiobutton(regw, text='FPV', variable=model, value=24).place(x=lx2, y=320)
-    Radiobutton(regw, text='Avata', variable=model, value=25).place(x=lx2, y=340)
-    Radiobutton(regw, text='Avata 2', variable=model, value=26).place(x=lx2, y=360)
-
-    Label(regw, text="Matrice", font=("Arial 10 bold")).place(x=lx2, y=390)
-    Radiobutton(regw, text='Matrice 300 RTK', variable=model, value=27).place(x=lx2, y=410)
-    Radiobutton(regw, text='Matrice 350 RTK', variable=model, value=28).place(x=lx2, y=430)
-    Radiobutton(regw, text='Matrice 30', variable=model, value=29).place(x=lx2, y=450)
-
-    Label(regw, text="Agras", font=("Arial 10 bold")).place(x=lx3, y=100)
-    Radiobutton(regw, text='Agras T20', variable=model, value=30).place(x=lx3, y=120)
-    Radiobutton(regw, text='Agras T30', variable=model, value=31).place(x=lx3, y=140)
-    Radiobutton(regw, text='Agras T40', variable=model, value=32).place(x=lx3, y=160)
-    Radiobutton(regw, text='Agras T50', variable=model, value=33).place(x=lx3, y=180)
-
-    def partone():
-        global rn
-
-        nm = nmin.get()
-        tn = tnin.get()
-
-        fday = fdayin.get()
-        fmonth = fmonthin.get()
-        fyear = fyearin.get()
-
-        lday = ldayin.get()
-        lmonth = lmonthin.get()
-        lyear = lyearin.get()
-
-        det = detin.get(1.0, "end-1c")
-        obs = obsin.get(1.0, "end-1c")
-
-        if (model.get() == 1):
-            drone = "Phantom 4"
-        elif (model.get() == 2):
-            drone = "Phantom 4 Pro"
-        elif (model.get() == 3):
-            drone = "Phantom 4 Advanced"
-        elif (model.get() == 4):
-            drone = "Phantom 4 Pro V2"
-        elif (model.get() == 5):
-            drone = "Phantom 4 RTK"
-        elif (model.get() == 6):
-            drone = "Spark"
-        elif (model.get() == 7):
-            drone = "Mavic Pro"
-        elif (model.get() == 8):
-            drone = "Mavic Air"
-        elif (model.get() == 9):
-            drone = "Mavic Air 2"
-        elif (model.get() == 10):
-            drone = "Mavic Air 2S"
-        elif (model.get() == 11):
-            drone = "Mavic 2 Pro"
-        elif (model.get() == 12):
-            drone = "Mavic 2 Enterprise"
-        elif (model.get() == 13):
-            drone = "Mavic 3"
-        elif (model.get() == 14):
-            drone = "Mavic 3 Cine"
-        elif (model.get() == 15):
-            drone = "Mavic 3 Pro"
-        elif (model.get() == 16):
-            drone = "Mavic 3 Classic"
-        elif (model.get() == 17):
-            drone = "Mini"
-        elif (model.get() == 18):
-            drone = "Mini SE"
-        elif (model.get() == 19):
-            drone = "Mini 2"
-        elif (model.get() == 20):
-            drone = "Mini 3"
-        elif (model.get() == 21):
-            drone = "Mini 3 Pro"
-        elif (model.get() == 22):
-            drone = "Mini 4 Pro"
-        elif (model.get() == 23):
-            drone = "Inspire"
-        elif (model.get() == 24):
-            drone = "FPV"
-        elif (model.get() == 25):
-            drone = "Avata"
-        elif (model.get() == 26):
-            drone = "Avata 2"
-        elif (model.get() == 27):
-            drone = "Matrice 300 RTK"
-        elif (model.get() == 28):
-            drone = "Matrice 350 RTK"
-        elif (model.get() == 29):
-            drone = "Matrice 30"
-        elif (model.get() == 30):
-            drone = "Agras T20"
-        elif (model.get() == 31):
-            drone = "Agras T30"
-        elif (model.get() == 32):
-            drone = "Agras T40"
-        elif (model.get() == 33):
-            drone = "Agras T50"
-        else:
-            drone = "NAN"
-
-        print("Numero de registro: " + str(rn))
-        print("Nombre del cliente: " + str(nm))
-        print("Nombre del tecnico: " + str(tn))
-        print("Fecha de entrada: " + str(fday) + "/" + str(fmonth) + "/" + str(fyear))
-        print("Fecha de salida: " + str(lday) + "/" + str(lmonth) + "/" + str(lyear))
-        print("Modelo: " + drone)
-        print(det)
-        print(obs)
-        print()
-
-        Ex = False
-        for folders in os.listdir('Files'):
-            if folders == str(rn):
-                Ex = True
-                msg('El registro ya existe')
-                break
-
-        if not Ex:
-            os.makedirs('Files/'+str(rn))
-            rep = open('Files/'+str(rn)+'/Data.txt','w')
-            rep.writelines([str(rn)+'\n',str(nm)+'\n',str(tn)+'\n',str(fday)+'\n',str(fmonth)+'\n',str(fyear)+'\n',str(lday)+'\n',str(lmonth)+'\n',str(lyear)+'\n',str(model.get())+'\n',det+'\n',obs+'\n'])
-
-
-        return
-
-    def elim():
-        global rn
         date = dt.datetime.now()
+
         rn = str(date.year) + str(date.month) + str(date.day) + str(date.hour) + str(date.minute) + str(date.second)
         rnt = "N# de registro: " + rn
-        rnlb = (Label(regw, text=rnt, font=("Arial 10 bold")))
-        rnlb.place(x=440, y=70)
 
-        tnin.delete(0, 100)
+        tl = Label(regw, text="Registro de mantenimiento de unidad: Datos", font=("Arial 20 bold"))
+        tl.place(x=10, y=20)
 
-        nmin.delete(0,100)
+        bck = Button(regw, text="Atrás", font=("Arial", 15), bg="brown1", command=ret)
+        bck.place(x=880, y=530, width=80, height=40)
 
-        detin.delete(1.0,"end-1c")
-        obsin.delete(1.0,"end-1c")
+        rnlb = (Label(regw, text=rnt, font=("Arial 10 bold"))).place(x=440, y=70)
+        nmlb = Label(regw, text="Nombre del cliente", font=("Arial 10 bold"))
+        nmin = Entry(regw, textvariable=nmv, font=("Arial", 10))
 
-        return
+        tnlb = Label(regw, text="Nombre del técnico", font=("Arial 10 bold"))
+        tnin = Entry(regw, textvariable=tnv, font=("Arial", 10))
 
-    vbtn = Button(regw,text="Registrar datos", font=("Arial", 15), bg="green2", command=partone)
-    cbtn = Button(regw, text="Limpiar datos", font=("Arial", 15), bg="sky blue", command=elim)
+        lx0 = 40
 
-    vbtn.place(x=200, y=530, width=200, height=40)
-    cbtn.place(x=450, y=530, width=200, height=40)
+        nmlb.place(x=lx0, y=60)
+        nmin.place(x=lx0, y=80, width=300)
 
-    regw.mainloop()
+        tnlb.place(x=lx0, y=100)
+        tnin.place(x=lx0, y=120,width=300)
 
-    #window
+        fdtlb = Label(regw, text="Fecha de entrada (día/mes/año)", font=("Arial 10 bold"))
+        Label(regw, text="/", font=("Arial", 10)).place(x=lx0+40, y=170)
+        Label(regw, text="/", font=("Arial", 10)).place(x=lx0+90, y=170)
 
-    return
+        fdayin = Combobox(regw, width=3, textvariable=fdayv)
+        fmonthin = Combobox(regw, width=3, textvariable=fmonthv)
+        fyearin = Combobox(regw, width=3, textvariable=fyearv)
+
+        fdayin['values'] = (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31)
+        fmonthin['values'] = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
+        fyearin['values'] = (24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40)
+
+        fdtlb.place(x=lx0, y=150)
+        fdayin.place(x=lx0, y=170)
+        fmonthin.place(x=lx0+50, y=170)
+        fyearin.place(x=lx0+100, y=170)
+
+        ldtlb = Label(regw, text="Fecha de salida (día/mes/año)", font=("Arial 10 bold"))
+        Label(regw, text="/", font=("Arial", 10)).place(x=lx0+40, y=220)
+        Label(regw, text="/", font=("Arial", 10)).place(x=lx0+90, y=220)
+
+        ldayin = Combobox(regw, width=3, textvariable=ldayv)
+        lmonthin = Combobox(regw, width=3, textvariable=lmonthv)
+        lyearin = Combobox(regw, width=3, textvariable=lyearv)
+
+        ldayin['values'] = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31)
+        lmonthin['values'] = (1,2,3,4,5,6,7,8,9,10,11,12)
+        lyearin['values'] = (24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40)
+
+        ldtlb.place(x=lx0, y=200)
+        ldayin.place(x=lx0, y=220)
+        lmonthin.place(x=lx0+50, y=220)
+        lyearin.place(x=lx0+100, y=220)
+
+        Label(regw, text="Detalles", font=("Arial 10 bold")).place(x=lx0, y=250)
+        detin = Text(regw, height=6, width=40, padx=2, pady=2, wrap=WORD)
+        scroll1 = Scrollbar(regw, orient=VERTICAL,command=detin.yview)
+
+        detin.place(x=lx0, y=270)
+        scroll1.place(x=lx0+325, y=260, height=120)
+
+        Label(regw, text="Observaciones", font=("Arial 10 bold")).place(x=lx0, y=380)
+        obsin = Text(regw, height=6, width=40, padx=2, pady=2, wrap=WORD)
+        scroll2 = Scrollbar(regw, orient=VERTICAL, command=obsin.yview)
+
+        obsin.place(x=lx0, y=400)
+        scroll2.place(x=lx0 + 325, y=390, height=120)
+
+        lx1 = 450
+        lx2 = 650
+        lx3 = 850
+
+        Label(regw, text="Phantom", font=("Arial 10 bold")).place(x=lx1, y=100)
+        Radiobutton(regw, text='Phantom 4', variable=model, value=1).place(x=lx1, y=120)
+        Radiobutton(regw, text='Phantom 4 Pro', variable=model, value=2).place(x=lx1, y=140)
+        Radiobutton(regw, text='Phantom 4 Advanced', variable=model, value=3).place(x=lx1, y=160)
+        Radiobutton(regw, text='Phantom 4 Pro V2', variable=model, value=4).place(x=lx1, y=180)
+        Radiobutton(regw, text='Phantom 4 RTK', variable=model, value=5).place(x=lx1, y=200)
+
+        Label(regw, text="Spark", font=("Arial 10 bold")).place(x=lx1, y=230)
+        Radiobutton(regw, text='Spark', variable=model, value=6).place(x=lx1, y=250)
+
+        Label(regw, text="Mavic", font=("Arial 10 bold")).place(x=lx1, y=280)
+        Radiobutton(regw, text='Mavic Pro', variable=model, value=7).place(x=lx1, y=300)
+        Radiobutton(regw, text='Mavic Air', variable=model, value=8).place(x=lx1, y=320)
+        Radiobutton(regw, text='Mavic Air 2', variable=model, value=9).place(x=lx1, y=340)
+        Radiobutton(regw, text='Mavic Air 2s', variable=model, value=10).place(x=lx1, y=360)
+        Radiobutton(regw, text='Mavic 2 Pro', variable=model, value=11).place(x=lx1, y=380)
+        Radiobutton(regw, text='Mavic 2 Enterprise', variable=model, value=12).place(x=lx1, y=400)
+        Radiobutton(regw, text='Mavic 3', variable=model, value=13).place(x=lx1, y=420)
+        Radiobutton(regw, text='Mavic 3 Cine', variable=model, value=14).place(x=lx1, y=440)
+        Radiobutton(regw, text='Mavic 3 Pro', variable=model, value=15).place(x=lx1, y=460)
+        Radiobutton(regw, text='Mavic 3 Classic', variable=model, value=16).place(x=lx1, y=480)
+
+        Label(regw, text="Mavic Mini", font=("Arial 10 bold")).place(x=lx2, y=100)
+        Radiobutton(regw, text='Mini', variable=model, value=17).place(x=lx2, y=120)
+        Radiobutton(regw, text='Mini SE', variable=model, value=18).place(x=lx2, y=140)
+        Radiobutton(regw, text='Mini 2', variable=model, value=19).place(x=lx2, y=160)
+        Radiobutton(regw, text='Mini 3', variable=model, value=20).place(x=lx2, y=180)
+        Radiobutton(regw, text='Mini 3 Pro', variable=model, value=21).place(x=lx2, y=200)
+        Radiobutton(regw, text='Mini 4 Pro', variable=model, value=22).place(x=lx2, y=220)
+
+        Label(regw, text="Inspire", font=("Arial 10 bold")).place(x=lx2, y=250)
+        Radiobutton(regw, text='Inspire', variable=model, value=23).place(x=lx2, y=270)
+
+        Label(regw, text="FPV", font=("Arial 10 bold")).place(x=lx2, y=300)
+        Radiobutton(regw, text='FPV', variable=model, value=24).place(x=lx2, y=320)
+        Radiobutton(regw, text='Avata', variable=model, value=25).place(x=lx2, y=340)
+        Radiobutton(regw, text='Avata 2', variable=model, value=26).place(x=lx2, y=360)
+
+        Label(regw, text="Matrice", font=("Arial 10 bold")).place(x=lx2, y=390)
+        Radiobutton(regw, text='Matrice 300 RTK', variable=model, value=27).place(x=lx2, y=410)
+        Radiobutton(regw, text='Matrice 350 RTK', variable=model, value=28).place(x=lx2, y=430)
+        Radiobutton(regw, text='Matrice 30', variable=model, value=29).place(x=lx2, y=450)
+
+        Label(regw, text="Agras", font=("Arial 10 bold")).place(x=lx3, y=100)
+        Radiobutton(regw, text='Agras T20', variable=model, value=30).place(x=lx3, y=120)
+        Radiobutton(regw, text='Agras T30', variable=model, value=31).place(x=lx3, y=140)
+        Radiobutton(regw, text='Agras T40', variable=model, value=32).place(x=lx3, y=160)
+        Radiobutton(regw, text='Agras T50', variable=model, value=33).place(x=lx3, y=180)
+
+        def partone():
+            global rn,Ex
+
+            nm = nmin.get()
+            tn = tnin.get()
+
+            fday = fdayin.get()
+            fmonth = fmonthin.get()
+            fyear = fyearin.get()
+
+            lday = ldayin.get()
+            lmonth = lmonthin.get()
+            lyear = lyearin.get()
+
+            det = detin.get(1.0, "end-1c")
+            obs = obsin.get(1.0, "end-1c")
+
+            if (model.get() == 1):
+                drone = "Phantom 4"
+            elif (model.get() == 2):
+                drone = "Phantom 4 Pro"
+            elif (model.get() == 3):
+                drone = "Phantom 4 Advanced"
+            elif (model.get() == 4):
+                drone = "Phantom 4 Pro V2"
+            elif (model.get() == 5):
+                drone = "Phantom 4 RTK"
+            elif (model.get() == 6):
+                drone = "Spark"
+            elif (model.get() == 7):
+                drone = "Mavic Pro"
+            elif (model.get() == 8):
+                drone = "Mavic Air"
+            elif (model.get() == 9):
+                drone = "Mavic Air 2"
+            elif (model.get() == 10):
+                drone = "Mavic Air 2S"
+            elif (model.get() == 11):
+                drone = "Mavic 2 Pro"
+            elif (model.get() == 12):
+                drone = "Mavic 2 Enterprise"
+            elif (model.get() == 13):
+                drone = "Mavic 3"
+            elif (model.get() == 14):
+                drone = "Mavic 3 Cine"
+            elif (model.get() == 15):
+                drone = "Mavic 3 Pro"
+            elif (model.get() == 16):
+                drone = "Mavic 3 Classic"
+            elif (model.get() == 17):
+                drone = "Mini"
+            elif (model.get() == 18):
+                drone = "Mini SE"
+            elif (model.get() == 19):
+                drone = "Mini 2"
+            elif (model.get() == 20):
+                drone = "Mini 3"
+            elif (model.get() == 21):
+                drone = "Mini 3 Pro"
+            elif (model.get() == 22):
+                drone = "Mini 4 Pro"
+            elif (model.get() == 23):
+                drone = "Inspire"
+            elif (model.get() == 24):
+                drone = "FPV"
+            elif (model.get() == 25):
+                drone = "Avata"
+            elif (model.get() == 26):
+                drone = "Avata 2"
+            elif (model.get() == 27):
+                drone = "Matrice 300 RTK"
+            elif (model.get() == 28):
+                drone = "Matrice 350 RTK"
+            elif (model.get() == 29):
+                drone = "Matrice 30"
+            elif (model.get() == 30):
+                drone = "Agras T20"
+            elif (model.get() == 31):
+                drone = "Agras T30"
+            elif (model.get() == 32):
+                drone = "Agras T40"
+            elif (model.get() == 33):
+                drone = "Agras T50"
+            else:
+                drone = "NAN"
+
+            print("Numero de registro: " + str(rn))
+            print("Nombre del cliente: " + str(nm))
+            print("Nombre del tecnico: " + str(tn))
+            print("Fecha de entrada: " + str(fday) + "/" + str(fmonth) + "/" + str(fyear))
+            print("Fecha de salida: " + str(lday) + "/" + str(lmonth) + "/" + str(lyear))
+            print("Modelo: " + drone)
+            print(det)
+            print(obs)
+            print()
+
+            Ex = False
+            for folders in os.listdir('Files'):
+                if folders == str(rn):
+                    Ex = True
+                    msg('El registro ya existe',2)
+                    break
+
+            if not Ex:
+                os.makedirs('Files/'+str(rn))
+                rep = open('Files/'+str(rn)+'/Data.txt','w')
+                rep.writelines([str(rn)+'\n',str(nm)+'\n',str(tn)+'\n',str(fday)+'\n',str(fmonth)+'\n',str(fyear)+'\n',str(lday)+'\n',str(lmonth)+'\n',str(lyear)+'\n',str(model.get())+'\n',det+'\n','@\n',obs+'\n','@\n'])
+                msg('Registro exitoso',0)
+                getprocedures()
+
+        def elim():
+            global rn
+            date = dt.datetime.now()
+            rn = str(date.year) + str(date.month) + str(date.day) + str(date.hour) + str(date.minute) + str(date.second)
+            rnt = "N# de registro: " + rn
+            rnlb = (Label(regw, text=rnt, font=("Arial 10 bold")))
+            rnlb.place(x=440, y=70)
+
+            tnin.delete(0, 100)
+
+            nmin.delete(0,100)
+
+            detin.delete(1.0,"end-1c")
+            obsin.delete(1.0,"end-1c")
+
+
+        vbtn = Button(regw,text="Registrar datos", font=("Arial", 15), bg="green2", command=partone)
+        cbtn = Button(regw, text="Limpiar datos", font=("Arial", 15), bg="sky blue", command=elim)
+
+        vbtn.place(x=200, y=530, width=200, height=40)
+        cbtn.place(x=450, y=530, width=200, height=40)
+
+        regw.mainloop()
+
+    # window 1
+
+    # window 2
+
+    def getprocedures():
+        print(1)
+        ret()
+
+    getdata()
+
+
 
 def showlist(): #Muestra la lista de drones
 
@@ -393,13 +404,14 @@ def message(): #Muestra una ventana de indicaciones o un mensaje
 
 #Procesos internos
 
-def msg(txt):
-    msg = Tk()
-    msg.geometry("200x50")
-    msg.title("Mensaje importante")
-    msgt = Label(msg, text=txt, font=("Arial", 11))
-    msgt.pack()
-    msg.mainloop()
+def msg(txt,n):
+    if n==0:
+        tk.messagebox.showinfo('Mensaje', txt)
+    elif n==1:
+        tk.messagebox.showwarning('Atención', txt)
+    elif n==2:
+        tk.messagebox.showerror('Error', txt)
+
 
 def init(): #Inicializa todos los módulos necesarios para el funcionamiento
     Ex = False
