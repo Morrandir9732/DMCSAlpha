@@ -1,17 +1,19 @@
 
 #Módulos de comunicación con la nube
-import os
-from tkinter.ttk import Combobox
-
-import datetime as dt
-
-from PIL.ImageOps import scale
 from google.cloud import storage
 
 #Módulos para las interfaces gráficas
+import tkinter
+from tkinter.ttk import Combobox
 from tkinter import *
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, filedialog
+
+#Módulos adicionales
+import os
+import datetime as dt
+import shutil
+from PIL import Image, ImageTk
 
 #Ventanas
 def mainmenu(): #Carga y muestra la ventana principal junto a sus procesos
@@ -125,7 +127,7 @@ def register(): #Muestra la ventana de registro y se encarga de realizar este pr
         rn = str(date.year) + str(date.month) + str(date.day) + str(date.hour) + str(date.minute) + str(date.second)
         rnt = "N# de registro: " + rn
 
-        tl = Label(regw, text="Registro de mantenimiento de unidad: Datos", font=("Arial 20 bold"))
+        tl = Label(regw, text="Registro de Datos", font=("Arial 20 bold"))
         tl.place(x=10, y=20)
 
         bck = Button(regw, text="Atrás", font=("Arial", 15), bg="brown1", command=ret)
@@ -354,7 +356,8 @@ def register(): #Muestra la ventana de registro y se encarga de realizar este pr
                 os.makedirs('Files/'+str(rn))
                 rep = open('Files/'+str(rn)+'/Data.txt','w')
                 rep.writelines([str(rn)+'\n',str(nm)+'\n',str(tn)+'\n',str(fday)+'\n',str(fmonth)+'\n',str(fyear)+'\n',str(lday)+'\n',str(lmonth)+'\n',str(lyear)+'\n',str(model.get())+'\n',det+'\n','@\n',obs+'\n','@\n'])
-                msg('Registro exitoso',0)
+                rep.close()
+                msg('Datos guardados',0)
                 getprocedures()
 
         def elim():
@@ -386,8 +389,93 @@ def register(): #Muestra la ventana de registro y se encarga de realizar este pr
     # window 2
 
     def getprocedures():
-        print(1)
-        ret()
+        global regw, rn
+        regw.destroy()
+
+        regw = Tk()
+        regw.title("DMCSAlpha")
+        regw.geometry("400x570")
+        img = tk.PhotoImage(file="Resources/Icons/logo.png")
+        regw.iconphoto(False, img)
+
+        tl = Label(regw, text="Registro de Procedimientos", font=("Arial 20 bold"))
+        tl.place(x=10, y=20)
+
+        pclb = Label(regw, text="Procedimiento/Falla:", font=("Arial 10 bold"))
+        pclb.place(x=40, y=60)
+
+        pcv = StringVar()
+        pcin = Entry(regw, textvariable=pcv, font="Arial 10 normal")
+        pcin.place(x=40, y=80, width=200)
+
+        Label(regw, text="Descripción/Solución", font=("Arial 10 bold")).place(x=40, y=100)
+        pdin = Text(regw, height=3, width=40, padx=2, pady=2, wrap=WORD)
+        pdin.place(x=40, y=120)
+
+        def insertimg():
+            imgsrc = tk.filedialog.askopenfilename()
+            imgn = os.path.basename(imgsrc)
+            ext = os.path.splitext(imgn)
+            ext = ext[1]
+            dest = 'Files/' + str(rn)
+            pc = pcin.get()
+            imgsrc2 = 'Files/' + str(rn) + '/' + pc + ext
+            if pc == '':
+                msg('Sin Procedimiento/Falla',2)
+                return
+            else:
+                if imgsrc != '':
+                    shutil.copy(imgsrc,dest)
+                    os.rename(dest+'/'+imgn,imgsrc2)
+                    imgs = Image.open(imgsrc2)
+                    imgrs = imgs.resize((320,180))
+                    pimg = ImageTk.PhotoImage(imgrs)
+                    imglb = Label(image=pimg)
+                    imglb.image = pimg
+                    imglb.place(x=40,y=230)
+
+        def savregister():
+            pc = pcin.get()
+            if pc=='':
+                msg('Sin Procedimiento/Falla', 2)
+                return
+            else:
+                pd = pdin.get(1.0, "end-1c")
+                proc = open('Files/' + str(rn) + '/' + pc + '.txt', 'w')
+                proc.writelines([str(rn) + '\n', pc + '\n', pd + '\n', '@'])
+                proc.close()
+                ch = messagebox.askquestion(title='Atención', message='¿Desea registrar un nuevo procedimiento/falla?')
+                if ch == 'yes':
+                    getprocedures()
+                else:
+                    ret()
+
+        def canregister():
+            dest = 'Files/' + str(rn)
+            msg('Registro eliminado', 1)
+            shutil.rmtree(dest)
+            ret()
+
+        def endregister():
+            msg('Registro finalizado', 0)
+            ret()
+
+        imgbtn = Button(regw, text="Insertar imagen", font=("Arial 10 bold"), bg="sky blue", command=insertimg)
+        imgbtn.place(x=125, y=185, width=150, height=40)
+
+        savbtn = Button(regw, text="Guardar", font=("Arial 10 bold"), bg="green2", command=savregister)
+        savbtn.place(x=125, y=420, width=150, height=40)
+
+        retbtn = Button(regw, text="Cancelar", font=("Arial 10 bold"), bg="brown1", command=canregister)
+        retbtn.place(x=125, y=470, width=150, height=40)
+
+        endbtn = Button(regw, text="Finalizar", font=("Arial 10 bold"), bg="sky blue", command=endregister)
+        endbtn.place(x=125, y=520, width=150, height=40)
+
+
+        #pimg1 = Label()
+
+
 
     getdata()
 
