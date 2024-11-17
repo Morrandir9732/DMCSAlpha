@@ -1,8 +1,9 @@
 
 #Módulos de comunicación con la nube
 import os
-from cProfile import label
-from doctest import master
+from tkinter.ttk import Combobox
+
+import datetime as dt
 
 from PIL.ImageOps import scale
 from google.cloud import storage
@@ -28,7 +29,7 @@ def mainmenu(): #Carga y muestra la ventana principal junto a sus procesos
         lib = 1
 
         btn3 = Button(menu, text="Local", font=("Arial", 15), bg="sky blue", command=folderL)
-        btn4 = Button(menu, text="Nube", font=("Arial", 15), bg="green", command=folderC)
+        btn4 = Button(menu, text="Nube", font=("Arial", 15), bg="green2", command=folderC)
         btn3.place(x=90, y=530, width=80, height=40)
         btn4.place(x=190, y=530, width=80, height=40)
 
@@ -37,7 +38,7 @@ def mainmenu(): #Carga y muestra la ventana principal junto a sus procesos
     def folderL():
         lib = 0
 
-        btn3 = Button(menu, text="Local", font=("Arial", 15), bg="green", command=folderL)
+        btn3 = Button(menu, text="Local", font=("Arial", 15), bg="green2", command=folderL)
         btn4 = Button(menu, text="Nube", font=("Arial", 15), bg="sky blue", command=folderC)
         btn3.place(x=90, y=530, width=80, height=40)
         btn4.place(x=190, y=530, width=80, height=40)
@@ -47,7 +48,7 @@ def mainmenu(): #Carga y muestra la ventana principal junto a sus procesos
     tl = Label(menu, text="Bienvenido a Drone Manuals Cloud Service", font=("Arial 20 bold"))
     tl.place(x=10, y=20)
 
-    txt1 = Label(menu, text="Búsqueda/Registro local o en la nube", font=("Arial 10 bold"))
+    txt1 = Label(menu, text="Búsqueda local o en la nube", font=("Arial 10 bold"))
     txt1.place(x=80, y=500)
 
     img = tk.PhotoImage(file="Resources/Icons/logo.png")
@@ -61,7 +62,7 @@ def mainmenu(): #Carga y muestra la ventana principal junto a sus procesos
     btn1.place(x=150, y=120, width=250, height=140)
     btn2.place(x=150, y=320, width=250, height=140)
 
-    btn3 = Button(menu, text="Local", font=("Arial", 15), bg="green", command=folderL)
+    btn3 = Button(menu, text="Local", font=("Arial", 15), bg="green2", command=folderL)
     btn4 = Button(menu, text="Nube", font=("Arial", 15), bg="sky blue", command=folderC)
     btn3.place(x=90, y=530, width=80, height=40)
     btn4.place(x=190, y=530, width=80, height=40)
@@ -81,7 +82,7 @@ def search(): #Muestra la ventana de búsqueda y se encarga de realizar este pro
 
 def register(): #Muestra la ventana de registro y se encarga de realizar este proceso
 
-    global menu, lib, regw, serw
+    global menu, lib, regw, serw, rn
 
     menu.destroy()
 
@@ -101,13 +102,8 @@ def register(): #Muestra la ventana de registro y se encarga de realizar este pr
         mainmenu()
         return
 
-    def partone():
-
-        return
-
     nmv = StringVar()
-    detv = StringVar()
-    obsv = StringVar()
+    tnv = StringVar()
 
     fdayv = IntVar()
     fmonthv = IntVar()
@@ -119,46 +115,79 @@ def register(): #Muestra la ventana de registro y se encarga de realizar este pr
 
     model = IntVar()
 
-    tl = Label(regw, text="Registro de mantenimiento de unidad", font=("Arial 20 bold"))
+    date = dt.datetime.now()
+
+    rn = str(date.year) + str(date.month) + str(date.day) + str(date.hour) + str(date.minute) + str(date.second)
+    rnt = "N# de registro: " + rn
+
+    tl = Label(regw, text="Registro de mantenimiento de unidad: Datos", font=("Arial 20 bold"))
     tl.place(x=10, y=20)
 
     bck = Button(regw, text="Atrás", font=("Arial", 15), bg="brown1", command=ret)
     bck.place(x=880, y=530, width=80, height=40)
 
+    rnlb = (Label(regw, text=rnt, font=("Arial 10 bold"))).place(x=440, y=70)
     nmlb = Label(regw, text="Nombre del cliente", font=("Arial 10 bold"))
     nmin = Entry(regw, textvariable=nmv, font=("Arial", 10))
 
-    nmlb.place(x=80, y=100)
-    nmin.place(x=80, y=120)
+    tnlb = Label(regw, text="Nombre del técnico", font=("Arial 10 bold"))
+    tnin = Entry(regw, textvariable=tnv, font=("Arial", 10))
+
+    lx0 = 40
+
+    nmlb.place(x=lx0, y=60)
+    nmin.place(x=lx0, y=80, width=300)
+
+    tnlb.place(x=lx0, y=100)
+    tnin.place(x=lx0, y=120,width=300)
 
     fdtlb = Label(regw, text="Fecha de entrada (día/mes/año)", font=("Arial 10 bold"))
-    Label(regw, text="/", font=("Arial", 10)).place(x=110, y=170)
-    Label(regw, text="/", font=("Arial", 10)).place(x=150, y=170)
-    fdayin = Entry(regw, textvariable=fdayv, font=("Arial", 10), width=3)
-    fmonthin = Entry(regw, textvariable=fmonthv, font=("Arial", 10), width=3)
-    fyearin = Entry(regw, textvariable=fyearv, font=("Arial", 10), width=5)
+    Label(regw, text="/", font=("Arial", 10)).place(x=lx0+40, y=170)
+    Label(regw, text="/", font=("Arial", 10)).place(x=lx0+90, y=170)
 
-    fdtlb.place(x=80, y=150)
-    fdayin.place(x=80, y=170)
-    fmonthin.place(x=120, y=170)
-    fyearin.place(x=160, y=170)
+    fdayin = Combobox(regw, width=3, textvariable=fdayv)
+    fmonthin = Combobox(regw, width=3, textvariable=fmonthv)
+    fyearin = Combobox(regw, width=3, textvariable=fyearv)
+
+    fdayin['values'] = (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31)
+    fmonthin['values'] = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
+    fyearin['values'] = (24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40)
+
+    fdtlb.place(x=lx0, y=150)
+    fdayin.place(x=lx0, y=170)
+    fmonthin.place(x=lx0+50, y=170)
+    fyearin.place(x=lx0+100, y=170)
 
     ldtlb = Label(regw, text="Fecha de salida (día/mes/año)", font=("Arial 10 bold"))
-    Label(regw, text="/", font=("Arial", 10)).place(x=110, y=220)
-    Label(regw, text="/", font=("Arial", 10)).place(x=150, y=220)
-    ldayin = Entry(regw, textvariable=ldayv, font=("Arial", 10), width=3)
-    lmonthin = Entry(regw, textvariable=lmonthv, font=("Arial", 10), width=3)
-    lyearin = Entry(regw, textvariable=lyearv, font=("Arial", 10), width=5)
+    Label(regw, text="/", font=("Arial", 10)).place(x=lx0+40, y=220)
+    Label(regw, text="/", font=("Arial", 10)).place(x=lx0+90, y=220)
 
-    ldtlb.place(x=80, y=200)
-    ldayin.place(x=80, y=220)
-    lmonthin.place(x=120, y=220)
-    lyearin.place(x=160, y=220)
+    ldayin = Combobox(regw, width=3, textvariable=ldayv)
+    lmonthin = Combobox(regw, width=3, textvariable=lmonthv)
+    lyearin = Combobox(regw, width=3, textvariable=lyearv)
 
-    Label(regw, text="Detalles", font=("Arial 10 bold")).place(x=80, y=250)
-    detin = Entry(regw, textvariable=detv, font=("Arial", 10), width=45, justify=LEFT)
+    ldayin['values'] = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31)
+    lmonthin['values'] = (1,2,3,4,5,6,7,8,9,10,11,12)
+    lyearin['values'] = (24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40)
 
-    detin.place(x=80, y=270)
+    ldtlb.place(x=lx0, y=200)
+    ldayin.place(x=lx0, y=220)
+    lmonthin.place(x=lx0+50, y=220)
+    lyearin.place(x=lx0+100, y=220)
+
+    Label(regw, text="Detalles", font=("Arial 10 bold")).place(x=lx0, y=250)
+    detin = Text(regw, height=6, width=40, padx=2, pady=2, wrap=WORD)
+    scroll1 = Scrollbar(regw, orient=VERTICAL,command=detin.yview)
+
+    detin.place(x=lx0, y=270)
+    scroll1.place(x=lx0+325, y=260, height=120)
+
+    Label(regw, text="Observaciones", font=("Arial 10 bold")).place(x=lx0, y=380)
+    obsin = Text(regw, height=6, width=40, padx=2, pady=2, wrap=WORD)
+    scroll2 = Scrollbar(regw, orient=VERTICAL, command=obsin.yview)
+
+    obsin.place(x=lx0, y=400)
+    scroll2.place(x=lx0 + 325, y=390, height=120)
 
     lx1 = 450
     lx2 = 650
@@ -213,6 +242,140 @@ def register(): #Muestra la ventana de registro y se encarga de realizar este pr
     Radiobutton(regw, text='Agras T40', variable=model, value=32).place(x=lx3, y=160)
     Radiobutton(regw, text='Agras T50', variable=model, value=33).place(x=lx3, y=180)
 
+    def partone():
+        global rn
+
+        nm = nmin.get()
+        tn = tnin.get()
+
+        fday = fdayin.get()
+        fmonth = fmonthin.get()
+        fyear = fyearin.get()
+
+        lday = ldayin.get()
+        lmonth = lmonthin.get()
+        lyear = lyearin.get()
+
+        det = detin.get(1.0, "end-1c")
+        obs = obsin.get(1.0, "end-1c")
+
+        if (model.get() == 1):
+            drone = "Phantom 4"
+        elif (model.get() == 2):
+            drone = "Phantom 4 Pro"
+        elif (model.get() == 3):
+            drone = "Phantom 4 Advanced"
+        elif (model.get() == 4):
+            drone = "Phantom 4 Pro V2"
+        elif (model.get() == 5):
+            drone = "Phantom 4 RTK"
+        elif (model.get() == 6):
+            drone = "Spark"
+        elif (model.get() == 7):
+            drone = "Mavic Pro"
+        elif (model.get() == 8):
+            drone = "Mavic Air"
+        elif (model.get() == 9):
+            drone = "Mavic Air 2"
+        elif (model.get() == 10):
+            drone = "Mavic Air 2S"
+        elif (model.get() == 11):
+            drone = "Mavic 2 Pro"
+        elif (model.get() == 12):
+            drone = "Mavic 2 Enterprise"
+        elif (model.get() == 13):
+            drone = "Mavic 3"
+        elif (model.get() == 14):
+            drone = "Mavic 3 Cine"
+        elif (model.get() == 15):
+            drone = "Mavic 3 Pro"
+        elif (model.get() == 16):
+            drone = "Mavic 3 Classic"
+        elif (model.get() == 17):
+            drone = "Mini"
+        elif (model.get() == 18):
+            drone = "Mini SE"
+        elif (model.get() == 19):
+            drone = "Mini 2"
+        elif (model.get() == 20):
+            drone = "Mini 3"
+        elif (model.get() == 21):
+            drone = "Mini 3 Pro"
+        elif (model.get() == 22):
+            drone = "Mini 4 Pro"
+        elif (model.get() == 23):
+            drone = "Inspire"
+        elif (model.get() == 24):
+            drone = "FPV"
+        elif (model.get() == 25):
+            drone = "Avata"
+        elif (model.get() == 26):
+            drone = "Avata 2"
+        elif (model.get() == 27):
+            drone = "Matrice 300 RTK"
+        elif (model.get() == 28):
+            drone = "Matrice 350 RTK"
+        elif (model.get() == 29):
+            drone = "Matrice 30"
+        elif (model.get() == 30):
+            drone = "Agras T20"
+        elif (model.get() == 31):
+            drone = "Agras T30"
+        elif (model.get() == 32):
+            drone = "Agras T40"
+        elif (model.get() == 33):
+            drone = "Agras T50"
+        else:
+            drone = "NAN"
+
+        print("Numero de registro: " + str(rn))
+        print("Nombre del cliente: " + str(nm))
+        print("Nombre del tecnico: " + str(tn))
+        print("Fecha de entrada: " + str(fday) + "/" + str(fmonth) + "/" + str(fyear))
+        print("Fecha de salida: " + str(lday) + "/" + str(lmonth) + "/" + str(lyear))
+        print("Modelo: " + drone)
+        print(det)
+        print(obs)
+        print()
+
+        Ex = False
+        for folders in os.listdir('Files'):
+            if folders == str(rn):
+                Ex = True
+                msg('El registro ya existe')
+                break
+
+        if not Ex:
+            os.makedirs('Files/'+str(rn))
+            rep = open('Files/'+str(rn)+'/Data.txt','w')
+            rep.writelines([str(rn)+'\n',str(nm)+'\n',str(tn)+'\n',str(fday)+'\n',str(fmonth)+'\n',str(fyear)+'\n',str(lday)+'\n',str(lmonth)+'\n',str(lyear)+'\n',str(model.get())+'\n',det+'\n',obs+'\n'])
+
+
+        return
+
+    def elim():
+        global rn
+        date = dt.datetime.now()
+        rn = str(date.year) + str(date.month) + str(date.day) + str(date.hour) + str(date.minute) + str(date.second)
+        rnt = "N# de registro: " + rn
+        rnlb = (Label(regw, text=rnt, font=("Arial 10 bold")))
+        rnlb.place(x=440, y=70)
+
+        tnin.delete(0, 100)
+
+        nmin.delete(0,100)
+
+        detin.delete(1.0,"end-1c")
+        obsin.delete(1.0,"end-1c")
+
+        return
+
+    vbtn = Button(regw,text="Registrar datos", font=("Arial", 15), bg="green2", command=partone)
+    cbtn = Button(regw, text="Limpiar datos", font=("Arial", 15), bg="sky blue", command=elim)
+
+    vbtn.place(x=200, y=530, width=200, height=40)
+    cbtn.place(x=450, y=530, width=200, height=40)
+
     regw.mainloop()
 
     #window
@@ -230,8 +393,22 @@ def message(): #Muestra una ventana de indicaciones o un mensaje
 
 #Procesos internos
 
-def init(): #Inicializa todos los módulos necesarios para el funcionamiento
+def msg(txt):
+    msg = Tk()
+    msg.geometry("200x50")
+    msg.title("Mensaje importante")
+    msgt = Label(msg, text=txt, font=("Arial", 11))
+    msgt.pack()
+    msg.mainloop()
 
+def init(): #Inicializa todos los módulos necesarios para el funcionamiento
+    Ex = False
+    for folders in os.listdir():
+        if folders == 'Files':
+            Ex = True
+            break
+    if not Ex:
+        os.mkdir('Files')
     return
 
 def upload(): #Sube los datos a la nube
