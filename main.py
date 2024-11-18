@@ -15,6 +15,7 @@ import datetime as dt
 import shutil
 from PIL import Image, ImageTk
 
+
 #Ventanas
 def mainmenu(): #Carga y muestra la ventana principal junto a sus procesos
 
@@ -31,25 +32,21 @@ def mainmenu(): #Carga y muestra la ventana principal junto a sus procesos
     def folderC():
         lib = 1
 
-        btn3 = Button(menu, text="Local", font=("Arial", 15), bg="sky blue", command=folderL)
-        btn4 = Button(menu, text="Nube", font=("Arial", 15), bg="green2", command=folderC)
-        btn3.place(x=90, y=530, width=80, height=40)
-        btn4.place(x=190, y=530, width=80, height=40)
+        btn3.config(bg='sky blue')
+        btn4.config(bg='green2')
 
         return
 
     def folderL():
         lib = 0
 
-        btn3 = Button(menu, text="Local", font=("Arial", 15), bg="green2", command=folderL)
-        btn4 = Button(menu, text="Nube", font=("Arial", 15), bg="sky blue", command=folderC)
-        btn3.place(x=90, y=530, width=80, height=40)
-        btn4.place(x=190, y=530, width=80, height=40)
+        btn3.config(bg='green2')
+        btn4.config(bg='sky blue')
 
         return
 
     tl = Label(menu, text="Bienvenido a Drone Manuals Cloud Service", font=("Arial 20 bold"))
-    tl.place(x=10, y=20)
+    tl.place(x=20, y=20)
 
     txt1 = Label(menu, text="Búsqueda local o en la nube", font=("Arial 10 bold"))
     txt1.place(x=80, y=500)
@@ -60,7 +57,7 @@ def mainmenu(): #Carga y muestra la ventana principal junto a sus procesos
 
     menu.iconphoto(False, img)
 
-    btn1 = Button(menu, text="Buscar", font=("Arial",30), bg="sky blue")
+    btn1 = Button(menu, text="Buscar", font=("Arial",30), bg="sky blue", command=search)
     btn2 = Button(menu, text="Registrar", font=("Arial", 30), bg="sky blue", command=register)
     btn1.place(x=150, y=120, width=250, height=140)
     btn2.place(x=150, y=320, width=250, height=140)
@@ -80,6 +77,168 @@ def mainmenu(): #Carga y muestra la ventana principal junto a sus procesos
     return
 
 def search(): #Muestra la ventana de búsqueda y se encarga de realizar este proceso
+
+    global menu,lib, regw, serw, rn, Ex
+
+    menu.destroy()
+
+    print(lib)
+
+    # window
+
+    serw = Tk()
+    serw.title("DMCSAlpha")
+    serw.geometry("1000x600")
+    img = tk.PhotoImage(file="Resources/Icons/logo.png")
+    serw.iconphoto(False, img)
+
+    def ret():
+        serw.destroy()
+        mainmenu()
+
+    # window 1
+
+    def look():
+
+        tl = Label(serw, text="Lista de Registros", font=("Arial 20 bold"))
+        tl.place(x=20, y=20)
+
+        files = os.listdir('Files')
+
+        scroll = Scrollbar(serw)
+        ls = Listbox(serw, yscrollcommand=scroll.set)
+
+        i = -1
+        frns = []
+        fcns = []
+        ftns = []
+        fmods = []
+        ffdates = []
+        fldates = []
+        nls = []
+
+        for file in files:
+            i = i + 1
+            src = 'Files/'+file+'/Data.txt'
+            data = open(src,'r+')
+            lines = data.readlines()
+            count = 0
+            end1 = 0
+            end2 = 0
+            endpass=False
+            for line in lines:
+                count += 1
+                if count == 1:
+                    frn = line.strip()
+                elif count == 2:
+                    fcn = line.strip()
+                elif count == 3:
+                    ftn = line.strip()
+                elif count == 4:
+                    ffd = line.strip()
+                elif count == 5:
+                    ffm = line.strip()
+                elif count == 6:
+                    ffy = line.strip()
+                elif count == 7:
+                    fld = line.strip()
+                elif count == 8:
+                    flm = line.strip()
+                elif count == 9:
+                    fly = line.strip()
+                elif count == 10:
+                    fmod = int(line.strip())
+                    fmod = getmodel(fmod)
+
+                if line.strip()=='@':
+                    if endpass:
+                        end2 = count
+                    else:
+                        end1 = count
+                        endpass = True
+
+            print(end1, end2)
+
+            data.close()
+            nls.append(i+1)
+            frns.append(frn)
+            fcns.append(fcn)
+            ftns.append(ftn)
+            ffdate = ffd + '/' + ffm + '/' + ffy
+            fldate = fld + '/' + flm + '/' + fly
+            ffdates.append(ffdate)
+            fldates.append(fldate)
+            fmods.append(fmod)
+
+            ls.insert(END, (' ' + str(i+1) + ' - ' + fmods[i] + ' - Fecha de llegada: ' + ffdates[i] + ' - Fecha de salida: ' + fldates[i]))
+
+        ls.config(height=10, width=70)
+        scroll.config(orient=VERTICAL, command=ls.yview)
+        ls.place(x=40, y=60)
+        scroll.place(x=465, y=60, height=160)
+
+        bck = Button(serw, text="Atrás", font=("Arial", 15), bg="brown1", command=ret)
+        bck.place(x=880, y=530, width=80, height=40)
+
+        rn = ''
+        cn = ''
+        tn = ''
+        ffdate = '--/--/--'
+        fldate = '--/--/--'
+        fmod = ''
+
+        lx0 = 500
+
+        Label(serw, text='Archivo a observar: ', font='Arial 10 bold').place(x=lx0, y=40)
+        unitls = Combobox(serw, width=5)
+        unitls['values'] = nls
+        unitls.current(0)
+        unitls.place(x=lx0+140, y=40)
+
+        Label(serw, text='Número de registro: ', font='Arial 10 bold').place(x=lx0, y=70)
+        Label(serw, text='Nombre del cliente: ', font='Arial 10 bold').place(x=lx0, y=100)
+        Label(serw, text='Nombre del técnico: ', font='Arial 10 bold').place(x=lx0, y=130)
+        Label(serw, text='Fecha de llegada: ', font='Arial 10 bold').place(x=lx0, y=160)
+        Label(serw, text='Fecha de salida: ', font='Arial 10 bold').place(x=lx0, y=190)
+        Label(serw, text='Modelo: ', font='Arial 10 bold').place(x=lx0, y=220)
+
+        rnlb = Label(serw, text=rn, font='Arial 10')
+        cnlb = Label(serw, text=cn, font='Arial 10')
+        tnlb = Label(serw, text=tn, font='Arial 10')
+        ffdatelb = Label(serw, text=ffdate, font='Arial 10')
+        fldatelb = Label(serw, text=fldate, font='Arial 10')
+        fmodlb = Label(serw, text=fmod, font='Arial 10')
+
+        rnlb.place(x=lx0 + 150, y=70)
+        cnlb.place(x=lx0 + 150, y=100)
+        tnlb.place(x=lx0 + 150, y=130)
+        ffdatelb.place(x=lx0 + 150, y=160)
+        fldatelb.place(x=lx0 + 150, y=190)
+        fmodlb.place(x=lx0 + 150, y=220)
+
+        def sel():
+            unit = int(unitls.get())
+            rn = frns[unit-1]
+            cn = fcns[unit-1]
+            tn = ftns[unit-1]
+            ffdate = ffdates[unit-1]
+            fldate = fldates[unit-1]
+            fmod = fmods[unit-1]
+
+            rnlb.config(text = rn)
+            cnlb.config(text = cn)
+            tnlb.config(text = tn)
+            ffdatelb.config(text = ffdate)
+            fldatelb.config(text = fldate)
+            fmodlb.config(text = fmod)
+
+        Button(serw, text='Seleccionar', font=("Arial", 10), bg="sky blue", command=sel).place(x=lx0+210, y=35)
+
+        serw.mainloop()
+
+        return
+
+    look()
 
     return
 
@@ -102,7 +261,6 @@ def register(): #Muestra la ventana de registro y se encarga de realizar este pr
     def ret():
         regw.destroy()
         mainmenu()
-        return
 
     # window 1
 
@@ -128,12 +286,13 @@ def register(): #Muestra la ventana de registro y se encarga de realizar este pr
         rnt = "N# de registro: " + rn
 
         tl = Label(regw, text="Registro de Datos", font=("Arial 20 bold"))
-        tl.place(x=10, y=20)
+        tl.place(x=20, y=20)
 
         bck = Button(regw, text="Atrás", font=("Arial", 15), bg="brown1", command=ret)
         bck.place(x=880, y=530, width=80, height=40)
 
-        rnlb = (Label(regw, text=rnt, font=("Arial 10 bold"))).place(x=440, y=70)
+        rnlb = Label(regw, text=rnt, font=("Arial 10 bold"))
+        molb = Label(regw, text='Modelos:', font=("Arial 10 bold")).place(x=440, y=70)
         nmlb = Label(regw, text="Nombre del cliente", font=("Arial 10 bold"))
         nmin = Entry(regw, textvariable=nmv, font=("Arial", 10))
 
@@ -142,6 +301,7 @@ def register(): #Muestra la ventana de registro y se encarga de realizar este pr
 
         lx0 = 40
 
+        rnlb.place(x=440, y=30)
         nmlb.place(x=lx0, y=60)
         nmin.place(x=lx0, y=80, width=300)
 
@@ -160,6 +320,10 @@ def register(): #Muestra la ventana de registro y se encarga de realizar este pr
         fmonthin['values'] = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
         fyearin['values'] = (24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40)
 
+        fdayin.current(0)
+        fmonthin.current(0)
+        fyearin.current(0)
+
         fdtlb.place(x=lx0, y=150)
         fdayin.place(x=lx0, y=170)
         fmonthin.place(x=lx0+50, y=170)
@@ -176,6 +340,10 @@ def register(): #Muestra la ventana de registro y se encarga de realizar este pr
         ldayin['values'] = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31)
         lmonthin['values'] = (1,2,3,4,5,6,7,8,9,10,11,12)
         lyearin['values'] = (24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40)
+
+        ldayin.current(0)
+        lmonthin.current(0)
+        lyearin.current(0)
 
         ldtlb.place(x=lx0, y=200)
         ldayin.place(x=lx0, y=220)
@@ -266,74 +434,8 @@ def register(): #Muestra la ventana de registro y se encarga de realizar este pr
             det = detin.get(1.0, "end-1c")
             obs = obsin.get(1.0, "end-1c")
 
-            if (model.get() == 1):
-                drone = "Phantom 4"
-            elif (model.get() == 2):
-                drone = "Phantom 4 Pro"
-            elif (model.get() == 3):
-                drone = "Phantom 4 Advanced"
-            elif (model.get() == 4):
-                drone = "Phantom 4 Pro V2"
-            elif (model.get() == 5):
-                drone = "Phantom 4 RTK"
-            elif (model.get() == 6):
-                drone = "Spark"
-            elif (model.get() == 7):
-                drone = "Mavic Pro"
-            elif (model.get() == 8):
-                drone = "Mavic Air"
-            elif (model.get() == 9):
-                drone = "Mavic Air 2"
-            elif (model.get() == 10):
-                drone = "Mavic Air 2S"
-            elif (model.get() == 11):
-                drone = "Mavic 2 Pro"
-            elif (model.get() == 12):
-                drone = "Mavic 2 Enterprise"
-            elif (model.get() == 13):
-                drone = "Mavic 3"
-            elif (model.get() == 14):
-                drone = "Mavic 3 Cine"
-            elif (model.get() == 15):
-                drone = "Mavic 3 Pro"
-            elif (model.get() == 16):
-                drone = "Mavic 3 Classic"
-            elif (model.get() == 17):
-                drone = "Mini"
-            elif (model.get() == 18):
-                drone = "Mini SE"
-            elif (model.get() == 19):
-                drone = "Mini 2"
-            elif (model.get() == 20):
-                drone = "Mini 3"
-            elif (model.get() == 21):
-                drone = "Mini 3 Pro"
-            elif (model.get() == 22):
-                drone = "Mini 4 Pro"
-            elif (model.get() == 23):
-                drone = "Inspire"
-            elif (model.get() == 24):
-                drone = "FPV"
-            elif (model.get() == 25):
-                drone = "Avata"
-            elif (model.get() == 26):
-                drone = "Avata 2"
-            elif (model.get() == 27):
-                drone = "Matrice 300 RTK"
-            elif (model.get() == 28):
-                drone = "Matrice 350 RTK"
-            elif (model.get() == 29):
-                drone = "Matrice 30"
-            elif (model.get() == 30):
-                drone = "Agras T20"
-            elif (model.get() == 31):
-                drone = "Agras T30"
-            elif (model.get() == 32):
-                drone = "Agras T40"
-            elif (model.get() == 33):
-                drone = "Agras T50"
-            else:
-                drone = "NAN"
+            modn = model.get()
+            drone = getmodel(modn)
 
             print("Numero de registro: " + str(rn))
             print("Nombre del cliente: " + str(nm))
@@ -361,12 +463,10 @@ def register(): #Muestra la ventana de registro y se encarga de realizar este pr
                 getprocedures()
 
         def elim():
-            global rn
             date = dt.datetime.now()
             rn = str(date.year) + str(date.month) + str(date.day) + str(date.hour) + str(date.minute) + str(date.second)
             rnt = "N# de registro: " + rn
-            rnlb = (Label(regw, text=rnt, font=("Arial 10 bold")))
-            rnlb.place(x=440, y=70)
+            rnlb.config(text=rnt)
 
             tnin.delete(0, 100)
 
@@ -434,6 +534,10 @@ def register(): #Muestra la ventana de registro y se encarga de realizar este pr
                     imglb.image = pimg
                     imglb.place(x=40,y=230)
 
+        def endregister():
+            msg('Registro finalizado', 0)
+            ret()
+
         def savregister():
             pc = pcin.get()
             if pc=='':
@@ -448,16 +552,12 @@ def register(): #Muestra la ventana de registro y se encarga de realizar este pr
                 if ch == 'yes':
                     getprocedures()
                 else:
-                    ret()
+                    endregister()
 
         def canregister():
             dest = 'Files/' + str(rn)
             msg('Registro eliminado', 1)
             shutil.rmtree(dest)
-            ret()
-
-        def endregister():
-            msg('Registro finalizado', 0)
             ret()
 
         imgbtn = Button(regw, text="Insertar imagen", font=("Arial 10 bold"), bg="sky blue", command=insertimg)
@@ -472,13 +572,7 @@ def register(): #Muestra la ventana de registro y se encarga de realizar este pr
         endbtn = Button(regw, text="Finalizar", font=("Arial 10 bold"), bg="sky blue", command=endregister)
         endbtn.place(x=125, y=520, width=150, height=40)
 
-
-        #pimg1 = Label()
-
-
-
     getdata()
-
 
 
 def showlist(): #Muestra la lista de drones
@@ -491,6 +585,77 @@ def message(): #Muestra una ventana de indicaciones o un mensaje
 
 
 #Procesos internos
+
+def getmodel(model):
+    if (model == 1):
+        drone = "Phantom 4"
+    elif (model == 2):
+        drone = "Phantom 4 Pro"
+    elif (model == 3):
+        drone = "Phantom 4 Advanced"
+    elif (model == 4):
+        drone = "Phantom 4 Pro V2"
+    elif (model == 5):
+        drone = "Phantom 4 RTK"
+    elif (model == 6):
+        drone = "Spark"
+    elif (model == 7):
+        drone = "Mavic Pro"
+    elif (model == 8):
+        drone = "Mavic Air"
+    elif (model == 9):
+        drone = "Mavic Air 2"
+    elif (model == 10):
+        drone = "Mavic Air 2S"
+    elif (model == 11):
+        drone = "Mavic 2 Pro"
+    elif (model == 12):
+        drone = "Mavic 2 Enterprise"
+    elif (model == 13):
+        drone = "Mavic 3"
+    elif (model == 14):
+        drone = "Mavic 3 Cine"
+    elif (model == 15):
+        drone = "Mavic 3 Pro"
+    elif (model == 16):
+        drone = "Mavic 3 Classic"
+    elif (model == 17):
+        drone = "Mini"
+    elif (model == 18):
+        drone = "Mini SE"
+    elif (model == 19):
+        drone = "Mini 2"
+    elif (model == 20):
+        drone = "Mini 3"
+    elif (model == 21):
+        drone = "Mini 3 Pro"
+    elif (model == 22):
+        drone = "Mini 4 Pro"
+    elif (model == 23):
+        drone = "Inspire"
+    elif (model == 24):
+        drone = "FPV"
+    elif (model == 25):
+        drone = "Avata"
+    elif (model == 26):
+        drone = "Avata 2"
+    elif (model == 27):
+        drone = "Matrice 300 RTK"
+    elif (model == 28):
+        drone = "Matrice 350 RTK"
+    elif (model == 29):
+        drone = "Matrice 30"
+    elif (model == 30):
+        drone = "Agras T20"
+    elif (model == 31):
+        drone = "Agras T30"
+    elif (model == 32):
+        drone = "Agras T40"
+    elif (model == 33):
+        drone = "Agras T50"
+    else:
+        drone = "NAN"
+    return drone
 
 def msg(txt,n):
     if n==0:
