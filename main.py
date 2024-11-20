@@ -1,4 +1,6 @@
+from site import ENABLE_USER_SITE
 
+import pylab as p
 #Módulos de comunicación con la nube
 from google.cloud import storage
 
@@ -82,13 +84,13 @@ def search(): #Muestra la ventana de búsqueda y se encarga de realizar este pro
 
     menu.destroy()
 
-    print(lib)
+    #print(lib)
 
     # window
 
     serw = Tk()
     serw.title("DMCSAlpha")
-    serw.geometry("1000x600")
+    serw.geometry("1000x850")
     img = tk.PhotoImage(file="Resources/Icons/logo.png")
     serw.iconphoto(False, img)
 
@@ -100,10 +102,16 @@ def search(): #Muestra la ventana de búsqueda y se encarga de realizar este pro
 
     def look():
 
+        global sproc
+
         tl = Label(serw, text="Lista de Registros", font=("Arial 20 bold"))
         tl.place(x=20, y=20)
 
         files = os.listdir('Files')
+
+        emp = False
+        if files == []:
+            emp = True
 
         scroll = Scrollbar(serw)
         ls = Listbox(serw, yscrollcommand=scroll.set)
@@ -112,20 +120,28 @@ def search(): #Muestra la ventana de búsqueda y se encarga de realizar este pro
         frns = []
         fcns = []
         ftns = []
+        fphs = []
         fmods = []
         ffdates = []
         fldates = []
         nls = []
+        ftext1s = []
+        ftext2s = []
+        pnames = []
+        pdescs = []
+        pimgs = []
 
         for file in files:
             i = i + 1
+
             src = 'Files/'+file+'/Data.txt'
             data = open(src,'r+')
             lines = data.readlines()
-            count = 0
+
             end1 = 0
             end2 = 0
             endpass=False
+            count = 0
             for line in lines:
                 count += 1
                 if count == 1:
@@ -135,18 +151,20 @@ def search(): #Muestra la ventana de búsqueda y se encarga de realizar este pro
                 elif count == 3:
                     ftn = line.strip()
                 elif count == 4:
-                    ffd = line.strip()
+                    fph = line.strip()
                 elif count == 5:
-                    ffm = line.strip()
+                    ffd = line.strip()
                 elif count == 6:
-                    ffy = line.strip()
+                    ffm = line.strip()
                 elif count == 7:
-                    fld = line.strip()
+                    ffy = line.strip()
                 elif count == 8:
-                    flm = line.strip()
+                    fld = line.strip()
                 elif count == 9:
-                    fly = line.strip()
+                    flm = line.strip()
                 elif count == 10:
+                    fly = line.strip()
+                elif count == 11:
                     fmod = int(line.strip())
                     fmod = getmodel(fmod)
 
@@ -157,82 +175,250 @@ def search(): #Muestra la ventana de búsqueda y se encarga de realizar este pro
                         end1 = count
                         endpass = True
 
-            print(end1, end2)
+            count = 0
+            ftext1 = ''
+            ftext2 = ''
+            for line in lines:
+                count += 1
+                if (count > 11) and (count < end1):
+                    ftext1 = ftext1 + line.strip()
+                    if end1 - count != 1:
+                         ftext1 = ftext1 + '\n'
+                elif (count > end1) and (count < end2):
+                    ftext2 = ftext2 + line.strip()
+                    if end2 - count != 1:
+                        ftext2 = ftext2 + '\n'
 
             data.close()
+
             nls.append(i+1)
             frns.append(frn)
             fcns.append(fcn)
             ftns.append(ftn)
+            fphs.append(fph)
             ffdate = ffd + '/' + ffm + '/' + ffy
             fldate = fld + '/' + flm + '/' + fly
             ffdates.append(ffdate)
             fldates.append(fldate)
             fmods.append(fmod)
+            ftext1s.append(ftext1)
+            ftext2s.append(ftext2)
 
             ls.insert(END, (' ' + str(i+1) + ' - ' + fmods[i] + ' - Fecha de llegada: ' + ffdates[i] + ' - Fecha de salida: ' + fldates[i]))
 
-        ls.config(height=10, width=70)
+            infiles = os.listdir('Files/' + file)
+            infiles.remove('Data.txt')
+
+            nproc = 0
+            pname = []
+            pdesc = []
+            pimg = []
+
+            for object in infiles:
+                ext = os.path.splitext(object)
+                ext = ext[1]
+                if ext == '.txt':
+                    nproc = nproc + 1
+
+            for j in range(nproc):
+                pimg.append('')
+
+            for object in infiles:
+                ext = os.path.splitext(object)
+                ext = ext[1]
+                if ext == '.txt':
+                    proc = open('Files/'+file+'/'+object, 'r+')
+                    lines = proc.readlines()
+                    end = 0
+                    count = 0
+                    for line in lines:
+                        if line.strip() == '@':
+                            end = count
+                        count = count + 1
+                        if count == 2:
+                            pname.append(line.strip())
+                    text = ''
+                    count = 0
+                    for line in lines:
+                        count += 1
+                        if (count > 2) and (count < end):
+                            text = text + line.strip()
+                            if end - count != 1:
+                                text = text + '\n'
+                    pdesc.append(text)
+
+                elif (ext == '.jpg') or (ext == '.png') or (ext == '.jpeg'):
+                    nimg = os.path.splitext(object)
+                    nimg = int(nimg[0])-1
+                    pimg.insert(nimg,object)
+
+            for k in range(len(pimg)):
+                if k>(nproc-1):
+                    pimg.pop(nproc)
+
+            pnames.append(pname)
+            pdescs.append(pdesc)
+            pimgs.append(pimg)
+
+        ls.config(height=13, width=70)
         scroll.config(orient=VERTICAL, command=ls.yview)
         ls.place(x=40, y=60)
-        scroll.place(x=465, y=60, height=160)
+        scroll.place(x=465, y=60, height=210)
 
         bck = Button(serw, text="Atrás", font=("Arial", 15), bg="brown1", command=ret)
-        bck.place(x=880, y=530, width=80, height=40)
+        bck.place(x=880, y=770, width=80, height=40)
 
+        unit = 0
+        sproc = ''
         rn = ''
         cn = ''
         tn = ''
+        ph = ''
         ffdate = '--/--/--'
         fldate = '--/--/--'
         fmod = ''
+        fdet = ''
+        fobs = ''
+        pn = ''
+        pd = ''
 
         lx0 = 500
 
         Label(serw, text='Archivo a observar: ', font='Arial 10 bold').place(x=lx0, y=40)
         unitls = Combobox(serw, width=5)
         unitls['values'] = nls
-        unitls.current(0)
+        if not emp:
+            unitls.current(0)
         unitls.place(x=lx0+140, y=40)
 
         Label(serw, text='Número de registro: ', font='Arial 10 bold').place(x=lx0, y=70)
         Label(serw, text='Nombre del cliente: ', font='Arial 10 bold').place(x=lx0, y=100)
         Label(serw, text='Nombre del técnico: ', font='Arial 10 bold').place(x=lx0, y=130)
-        Label(serw, text='Fecha de llegada: ', font='Arial 10 bold').place(x=lx0, y=160)
-        Label(serw, text='Fecha de salida: ', font='Arial 10 bold').place(x=lx0, y=190)
-        Label(serw, text='Modelo: ', font='Arial 10 bold').place(x=lx0, y=220)
+        Label(serw, text='Teléfono de contacto: ', font='Arial 10 bold').place(x=lx0, y=160)
+        Label(serw, text='Fecha de llegada: ', font='Arial 10 bold').place(x=lx0, y=190)
+        Label(serw, text='Fecha de salida: ', font='Arial 10 bold').place(x=lx0, y=220)
+        Label(serw, text='Modelo: ', font='Arial 10 bold').place(x=lx0, y=250)
+        Label(serw, text='Detalles:', font='Arial 10 bold').place(x=40, y=280)
+        Label(serw, text='Observaciones:', font='Arial 10 bold').place(x=lx0, y=280)
+        Label(serw, text='Procedimientos/Fallas:', font='Arial 11 bold').place(x=40, y=420)
+        Label(serw, text='Elija el procedimiento/falla:', font='Arial 10 bold').place(x=40, y=450)
+        Label(serw, text='Procedimiento/falla: ', font='Arial 10 bold').place(x=300, y=450)
+        Label(serw, text='Descripción: ', font='Arial 10 bold').place(x=300,y=480)
+
+        procedls = Combobox(serw, width=5)
+        procedls['values'] = []
+        procedls.place(x=40, y=480)
 
         rnlb = Label(serw, text=rn, font='Arial 10')
         cnlb = Label(serw, text=cn, font='Arial 10')
         tnlb = Label(serw, text=tn, font='Arial 10')
+        phlb = Label(serw, text=ph, font='Arial 10')
         ffdatelb = Label(serw, text=ffdate, font='Arial 10')
         fldatelb = Label(serw, text=fldate, font='Arial 10')
         fmodlb = Label(serw, text=fmod, font='Arial 10')
+        fdetlb = Text(serw, height=6, width=40, padx=2, pady=2, wrap=WORD)
+        scroll1 = Scrollbar(serw, orient=VERTICAL,command=fdetlb.yview)
+        fobslb = Text(serw, height=6, width=40, padx=2, pady=2, wrap=WORD, state=DISABLED)
+        scroll2 = Scrollbar(serw, orient=VERTICAL, command=fobslb.yview)
+        pnlb = Label(serw, text=pn, font='Arial 10')
+        pdlb = Text(serw, height=6, width=40, padx=2, pady=2, wrap=WORD, state=DISABLED)
+        scroll3 = Scrollbar(serw, orient=VERTICAL, command=pdlb.yview)
 
         rnlb.place(x=lx0 + 150, y=70)
         cnlb.place(x=lx0 + 150, y=100)
         tnlb.place(x=lx0 + 150, y=130)
-        ffdatelb.place(x=lx0 + 150, y=160)
-        fldatelb.place(x=lx0 + 150, y=190)
-        fmodlb.place(x=lx0 + 150, y=220)
+        phlb.place(x=lx0 + 150, y=160)
+        ffdatelb.place(x=lx0 + 150, y=190)
+        fldatelb.place(x=lx0 + 150, y=220)
+        fmodlb.place(x=lx0 + 150, y=250)
+        fdetlb.place(x=40, y=310)
+        scroll1.place(x=40 + 325, y=310, height=110)
+        fobslb.place(x=lx0, y=310)
+        scroll2.place(x=lx0 + 325, y=310, height=110)
+        pnlb.place(x=450, y=450)
+        pdlb.place(x=450, y=480)
+        scroll3.place(x=450 + 325, y=480, height=110)
+
+        def showi():
+            global unit, rn, sproc
+            if sproc=='':
+                return
+            else:
+                pimgn = pimgs[unit-1][sproc-1]
+                if pimgn != '':
+                    imgsrc = 'Files/' + str(rn) + '/' + pimgn
+                else:
+                    imgsrc = 'Resources/Icons/noimage.png'
+                imgs = Image.open(imgsrc)
+                imgrs = imgs.resize((416, 234))
+                pimg = ImageTk.PhotoImage(imgrs)
+                imglb = Label(image=pimg, background="black")
+                imglb.image = pimg
+                imglb.place(x=270, y=590)
+
+        def selp():
+            global unit, sproc
+            sproc = procedls.get()
+            if sproc == '':
+                return
+            else:
+                sproc = int(sproc)
+                pn = pnames[unit-1][sproc-1]
+                pd = pdescs[unit-1][sproc-1]
+
+                pnlb.config(text = pn)
+                pdlb.config(state=NORMAL)
+                pdlb.delete(1.0, "end-1c")
+                pdlb.insert(tk.END, pd)
+                pdlb.config(state=DISABLED)
 
         def sel():
+            global unit, rn
+            if emp:
+                return
             unit = int(unitls.get())
             rn = frns[unit-1]
             cn = fcns[unit-1]
             tn = ftns[unit-1]
+            ph = fphs[unit-1]
             ffdate = ffdates[unit-1]
             fldate = fldates[unit-1]
             fmod = fmods[unit-1]
+            ftext1 = ftext1s[unit-1]
+            ftext2 = ftext2s[unit-1]
 
             rnlb.config(text = rn)
             cnlb.config(text = cn)
             tnlb.config(text = tn)
+            phlb.config(text = ph )
             ffdatelb.config(text = ffdate)
             fldatelb.config(text = fldate)
             fmodlb.config(text = fmod)
 
+            fdetlb.config(state=NORMAL)
+            fdetlb.delete(1.0, "end-1c")
+            fdetlb.insert(tk.END, ftext1)
+            fdetlb.config(state=DISABLED)
+
+            fobslb.config(state=NORMAL)
+            fobslb.delete(1.0, "end-1c")
+            fobslb.insert(tk.END, ftext2)
+            fobslb.config(state=DISABLED)
+
+            np = []
+            for i in range(len(pnames[unit-1])):
+                np.append(i+1)
+
+            procedls['values'] = np
+            procedls.current(0)
+
+            noproced = False
+            if np == []:
+                noproced = True
+
         Button(serw, text='Seleccionar', font=("Arial", 10), bg="sky blue", command=sel).place(x=lx0+210, y=35)
+        Button(serw, text='Seleccionar', font=("Arial", 10), bg="sky blue", command=selp).place(x=100, y=480)
+        Button(serw, text='Ver imagen', font=("Arial", 10), bg="sky blue", command=showi).place(x=300, y=510)
 
         serw.mainloop()
 
@@ -248,7 +434,7 @@ def register(): #Muestra la ventana de registro y se encarga de realizar este pr
 
     menu.destroy()
 
-    print(lib)
+    #print(lib)
 
     # window
 
@@ -273,6 +459,8 @@ def register(): #Muestra la ventana de registro y se encarga de realizar este pr
         fdayv = IntVar()
         fmonthv = IntVar()
         fyearv = IntVar()
+
+        phv = StringVar()
 
         ldayv = IntVar()
         lmonthv = IntVar()
@@ -307,6 +495,12 @@ def register(): #Muestra la ventana de registro y se encarga de realizar este pr
 
         tnlb.place(x=lx0, y=100)
         tnin.place(x=lx0, y=120,width=300)
+
+        phlb = Label(regw, text="Teléfono del cliente", font=("Arial 10 bold"))
+        phin = Entry(regw, textvariable=phv, font=("Arial", 10))
+
+        phlb.place(x=lx0 + 220, y=150)
+        phin.place(x=lx0 + 220, y=170)
 
         fdtlb = Label(regw, text="Fecha de entrada (día/mes/año)", font=("Arial 10 bold"))
         Label(regw, text="/", font=("Arial", 10)).place(x=lx0+40, y=170)
@@ -355,14 +549,14 @@ def register(): #Muestra la ventana de registro y se encarga de realizar este pr
         scroll1 = Scrollbar(regw, orient=VERTICAL,command=detin.yview)
 
         detin.place(x=lx0, y=270)
-        scroll1.place(x=lx0+325, y=260, height=120)
+        scroll1.place(x=lx0+325, y=260, height=110)
 
         Label(regw, text="Observaciones", font=("Arial 10 bold")).place(x=lx0, y=380)
         obsin = Text(regw, height=6, width=40, padx=2, pady=2, wrap=WORD)
         scroll2 = Scrollbar(regw, orient=VERTICAL, command=obsin.yview)
 
         obsin.place(x=lx0, y=400)
-        scroll2.place(x=lx0 + 325, y=390, height=120)
+        scroll2.place(x=lx0 + 325, y=390, height=110)
 
         lx1 = 450
         lx2 = 650
@@ -422,6 +616,7 @@ def register(): #Muestra la ventana de registro y se encarga de realizar este pr
 
             nm = nmin.get()
             tn = tnin.get()
+            ph = phin.get()
 
             fday = fdayin.get()
             fmonth = fmonthin.get()
@@ -440,6 +635,7 @@ def register(): #Muestra la ventana de registro y se encarga de realizar este pr
             print("Numero de registro: " + str(rn))
             print("Nombre del cliente: " + str(nm))
             print("Nombre del tecnico: " + str(tn))
+            print("Telefono del cliente: " + str(ph))
             print("Fecha de entrada: " + str(fday) + "/" + str(fmonth) + "/" + str(fyear))
             print("Fecha de salida: " + str(lday) + "/" + str(lmonth) + "/" + str(lyear))
             print("Modelo: " + drone)
@@ -457,10 +653,10 @@ def register(): #Muestra la ventana de registro y se encarga de realizar este pr
             if not Ex:
                 os.makedirs('Files/'+str(rn))
                 rep = open('Files/'+str(rn)+'/Data.txt','w')
-                rep.writelines([str(rn)+'\n',str(nm)+'\n',str(tn)+'\n',str(fday)+'\n',str(fmonth)+'\n',str(fyear)+'\n',str(lday)+'\n',str(lmonth)+'\n',str(lyear)+'\n',str(model.get())+'\n',det+'\n','@\n',obs+'\n','@\n'])
+                rep.writelines([str(rn)+'\n',str(nm)+'\n',str(tn)+'\n',str(ph)+'\n',str(fday)+'\n',str(fmonth)+'\n',str(fyear)+'\n',str(lday)+'\n',str(lmonth)+'\n',str(lyear)+'\n',str(model.get())+'\n',det+'\n','@\n',obs+'\n','@\n'])
                 rep.close()
                 msg('Datos guardados',0)
-                getprocedures()
+                getprocedures(1)
 
         def elim():
             date = dt.datetime.now()
@@ -488,7 +684,7 @@ def register(): #Muestra la ventana de registro y se encarga de realizar este pr
 
     # window 2
 
-    def getprocedures():
+    def getprocedures(N):
         global regw, rn
         regw.destroy()
 
@@ -511,6 +707,8 @@ def register(): #Muestra la ventana de registro y se encarga de realizar este pr
         Label(regw, text="Descripción/Solución", font=("Arial 10 bold")).place(x=40, y=100)
         pdin = Text(regw, height=3, width=40, padx=2, pady=2, wrap=WORD)
         pdin.place(x=40, y=120)
+        scroll1 = Scrollbar(regw, orient=VERTICAL, command=pdin.yview)
+        scroll1.place(x=370, y=120, height=60)
 
         def insertimg():
             imgsrc = tk.filedialog.askopenfilename()
@@ -519,7 +717,7 @@ def register(): #Muestra la ventana de registro y se encarga de realizar este pr
             ext = ext[1]
             dest = 'Files/' + str(rn)
             pc = pcin.get()
-            imgsrc2 = 'Files/' + str(rn) + '/' + pc + ext
+            imgsrc2 = 'Files/' + str(rn) + '/' + str(N) + ext
             if pc == '':
                 msg('Sin Procedimiento/Falla',2)
                 return
@@ -530,7 +728,7 @@ def register(): #Muestra la ventana de registro y se encarga de realizar este pr
                     imgs = Image.open(imgsrc2)
                     imgrs = imgs.resize((320,180))
                     pimg = ImageTk.PhotoImage(imgrs)
-                    imglb = Label(image=pimg)
+                    imglb = Label(image=pimg, background="black")
                     imglb.image = pimg
                     imglb.place(x=40,y=230)
 
@@ -545,12 +743,12 @@ def register(): #Muestra la ventana de registro y se encarga de realizar este pr
                 return
             else:
                 pd = pdin.get(1.0, "end-1c")
-                proc = open('Files/' + str(rn) + '/' + pc + '.txt', 'w')
+                proc = open('Files/' + str(rn) + '/' + str(N) + '.txt', 'w')
                 proc.writelines([str(rn) + '\n', pc + '\n', pd + '\n', '@'])
                 proc.close()
                 ch = messagebox.askquestion(title='Atención', message='¿Desea registrar un nuevo procedimiento/falla?')
                 if ch == 'yes':
-                    getprocedures()
+                    getprocedures(N+1)
                 else:
                     endregister()
 
@@ -574,15 +772,13 @@ def register(): #Muestra la ventana de registro y se encarga de realizar este pr
 
     getdata()
 
-
-def showlist(): #Muestra la lista de drones
-
-    return
-
-def message(): #Muestra una ventana de indicaciones o un mensaje
-
-    return
-
+def msg(txt,n):
+    if n==0:
+        tk.messagebox.showinfo('Mensaje', txt)
+    elif n==1:
+        tk.messagebox.showwarning('Atención', txt)
+    elif n==2:
+        tk.messagebox.showerror('Error', txt)
 
 #Procesos internos
 
@@ -656,15 +852,6 @@ def getmodel(model):
     else:
         drone = "NAN"
     return drone
-
-def msg(txt,n):
-    if n==0:
-        tk.messagebox.showinfo('Mensaje', txt)
-    elif n==1:
-        tk.messagebox.showwarning('Atención', txt)
-    elif n==2:
-        tk.messagebox.showerror('Error', txt)
-
 
 def init(): #Inicializa todos los módulos necesarios para el funcionamiento
     Ex = False
